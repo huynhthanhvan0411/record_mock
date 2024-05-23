@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Role extends Model
 {
     use HasFactory,SoftDeletes;
-    protected $table = 'divisions';
+    protected $table = 'roles';
     protected $primaryKey = 'id';
     public $timestamps = true;
 

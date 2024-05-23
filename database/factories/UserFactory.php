@@ -26,12 +26,12 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return[
-            'role_id'=>1,
-            'name' => 'Test User',
+            'role_id'=>2, //dèfault role_id is 2 is user
+            'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
             'password' => Hash::make('1234567890'),
-            'create_at'=>now(),
-            'update_at'=>now(),
+            'created_at'=>now(),
+            'updated_at'=>now(),
         ];
     }
 
