@@ -29,6 +29,7 @@ class UserFactory extends Factory
             'role_id'=>2, //dèfault role_id is 2 is user
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
+            'status'=>fake()->numberBetween(0,1), //status is 0 or 1
             'password' => Hash::make('1234567890'),
             'created_at'=>now(),
             'updated_at'=>now(),
