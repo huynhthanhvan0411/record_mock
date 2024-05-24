@@ -4,7 +4,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\ProfileController;
 use App\Http\Controllers\API\AuthencationController;
-use App\Http\Controllers\API\EmailController;
+use App\Http\Controllers\API\EmailVerifiedlyController;
+use App\Http\Controllers\API\EmployeeController;
 
 
 /*
@@ -42,10 +43,21 @@ Route::group(['middleware' => 'api','prefix' => 'admin'], function () {
 });
 
 Route::prefix('email')->group(function () {
-    Route::get('/verify/{id}/{hash}', [EmailController::class, 'checkVerifyEmail'])->middleware(['auth', 'signed'])->name('verification.verify');
-    Route::get('/verification-notification', [EmailController::class, 'sendVerificationEmail'])->middleware(['auth', 'throttle:6,1'])->name('verification.send');
+    Route::get('/verify/{id}/{hash}', [EmailVerifiedlyController::class, 'checkVerifyEmail'])->middleware(['auth', 'signed'])->name('verification.verify');
+    Route::get('/verification-notification', [EmailVerifiedlyController::class, 'sendVerificationEmail'])->middleware(['auth', 'throttle:6,1'])->name('verification.send');
 });
 
 
-//=======================================USER========================================
+//=======================================USER======================================
 
+Route::group(['prefix' => 'employee'], function () {
+    Route::prefix('me')->group(function () {
+        Route::post('', [EmployeeController::class, 'me'])->name('employee.me');
+        Route::post('logout', [EmployeeController::class, 'logout'])->name('employee.logout');
+        Route::post('login', [EmployeeController::class, 'login'])->name('employee.login');
+        Route::post('change--info', [EmployeeController::class, 'changeInfo'])->name('employee.change-info');
+    });
+    Route::prefix('company')->group(function () {
+        Route::post('detail-worker', [EmployeeController::class, 'detailEmployeeOthers'])->name('employee.detail-worker');
+    });
+});
