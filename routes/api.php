@@ -6,6 +6,9 @@ use App\Http\Controllers\API\ProfileController;
 use App\Http\Controllers\API\AuthencationController;
 use App\Http\Controllers\API\EmailVerifiedlyController;
 use App\Http\Controllers\API\EmployeeController;
+use App\Http\Controllers\API\ChangePassword;
+use App\Http\Controllers\API\PasswordResetController;
+use App\Http\Controllers\API\NotificationController;
 
 
 /*
@@ -36,10 +39,15 @@ Route::group(['middleware' => 'api','prefix' => 'admin'], function () {
         Route::post('refresh', [AuthencationController::class, 'refresh'])->name('auth.refresh');
         Route::post('me', [AuthencationController::class, 'me'])->name('auth.me');
         Route::post('u', [AuthencationController::class, 'u'])->name('auth.register');
-        Route::post('forgot-password', [AuthencationController::class, 'forgotPassword'])->name('auth.forgot-password');
-        Route::post('reset-password', [AuthencationController::class, 'resetPassword'])->name('auth.reset-password');
+        
         Route::post('okk', [AuthencationController::class, 'okk']);
     });
+    Route::prefix('notification')->group(function () {
+        Route::post('send', [NotificationController::class, 'send'])->name('notification.send');
+        Route::get('check', [NotificationController::class, 'check'])->name('notification.check');
+        Route::get('hi', [NotificationController::class, 'hi'])->name('notification.hi');
+    });
+
 });
 
 Route::prefix('email')->group(function () {
@@ -60,4 +68,13 @@ Route::group(['prefix' => 'employee'], function () {
     Route::prefix('company')->group(function () {
         Route::post('detail-worker', [EmployeeController::class, 'detailEmployeeOthers'])->name('employee.detail-worker');
     });
+    Route::prefix('check-in')->group(function () {
+        Route::post('', [EmployeeController::class, 'checkIn'])->name('employee.check-in');
+        Route::post('history-day', [EmployeeController::class, 'historyDaily'])->name('employee.historyDaily');
+    });
+
+  
 });
+
+Route::post('forgot-password', [PasswordResetController::class, 'sendEmail'])->name('employee.forgot-password');
+Route::post('reset-password', [ChangePassword::class, 'passwordResetProcess'])->name('employee.reset-password');

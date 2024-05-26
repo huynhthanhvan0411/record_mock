@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\CheckIn;
 use App\Models\User;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Http\Request;
@@ -10,8 +11,10 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Profile;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use App\Models\Attendance;
 class EmployeeController extends Controller
 {
     public function __construct(){
@@ -200,5 +203,200 @@ class EmployeeController extends Controller
             return response()->json(['message' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+    // public function checkIn(Request $request)
+    // {
+    //     $user = Auth::user();
+    //     $date = Carbon::now();
+    //     $total_hours = 0;
+    //     $late_minutes = 0;
 
+    //     DB::beginTransaction();
+
+    //     try {
+    //         // Tạo bản ghi check-in mới
+    //         $checkInRecord = CheckIn::create([
+    //             'user_id' => $user->id,
+    //             'check_in' => $date,
+    //         ]);
+
+    //         // Lấy tất cả các check-in của ngày hôm nay cho người dùng này
+    //         $today = Carbon::today();
+    //         $checkIns = CheckIn::where('user_id', $user->id)
+    //             ->whereDate('check_in', $today)
+    //             ->orderBy('check_in', 'asc')
+    //             ->get();
+
+    //         // Nếu có ít nhất một check-in
+    //         if ($checkIns->count() > 0) {
+    //             $firstCheckIn = $checkIns->first();
+    //             $lastCheckIn = $checkIns->last();
+
+    //             $checkInTime = Carbon::parse($firstCheckIn->check_in);
+    //             $checkOutTime = Carbon::parse($lastCheckIn->check_in);
+
+    //             // Tính số phút đi muộn
+    //             $lateMinutes = max(0, $checkInTime->diffInMinutes(Carbon::createFromTime(8, 0), false));
+
+    //             // Tính số giờ làm việc
+    //             $morningStart = Carbon::createFromTime(8, 0); // Buổi sáng bắt đầu từ 8:00
+    //             $morningEnd = Carbon::createFromTime(12, 0);   // Buổi sáng kết thúc vào 12:00
+    //             $afternoonStart = Carbon::createFromTime(13, 30); // Buổi chiều bắt đầu từ 13:30
+    //             $afternoonEnd = Carbon::createFromTime(17, 30);   // Buổi chiều kết thúc vào 17:30
+
+    //             // Kiểm tra thời gian check-in và check-out rơi vào khung giờ làm việc buổi sáng và buổi chiều
+    //             if ($checkInTime->lte($morningEnd) && $checkOutTime->gte($morningStart)) {
+    //                 // Tính số giờ làm việc trong buổi sáng
+    //                 $morningWorkHours = min($morningEnd, $checkOutTime)->diffInHours(max($morningStart, $checkInTime));
+    //                 $total_hours += $morningWorkHours;
+    //             }
+
+    //             if ($checkInTime->lte($afternoonEnd) && $checkOutTime->gte($afternoonStart)) {
+    //                 // Tính số giờ làm việc trong buổi chiều
+    //                 $afternoonWorkHours = min($afternoonEnd, $checkOutTime)->diffInHours(max($afternoonStart, $checkInTime));
+    //                 $total_hours += $afternoonWorkHours;
+    //             }
+
+    //         }
+
+    //         // Commit giao dịch
+    //         DB::commit();
+
+    //         // Trả về kết quả
+    //         return response()->json([
+    //             'message' => 'Check-in success',
+    //             'Welcome' => $user->name,
+    //             'check_in' => $firstCheckIn->check_in,
+    //             'check_out' => $lastCheckIn->check_in,
+    //             'late_minutes' => $lateMinutes,
+    //             'total_hours' => $total_hours,
+    //         ], Response::HTTP_OK);
+    //     } catch (\Exception $e) {
+    //         DB::rollBack();
+    //         Log::error($e->getMessage());
+    //         return response()->json(['message' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+    //     }
+    // }
+
+    public function historyDaily(Request $request)
+    {
+        $user = Auth::user();
+        try {
+            // $daily = $request->input('daily');
+            // if (is_null($daily)) {
+            //     return response()->json(['message' => 'Please enter the day you want to view'], Response::HTTP_BAD_REQUEST);
+            // }
+
+            // $daily = Carbon::parse($daily)->format('m/d/YYYY');
+            $checkInDay = DB::table('check_in')
+                ->where('user_id', $user->id) 
+                // ->where(DB::raw('DATE(check_in)'), $daily)
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'Welcome' => $user->name,
+                'Check-in history' => $checkInDay
+            ], Response::HTTP_OK);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+   public function checkIn(Request $request)
+    {
+        $user = Auth::user();
+        $date = Carbon::now();
+        $total_hours = 0;
+        $late_minutes = 0;
+
+        DB::beginTransaction();
+
+        try {
+            // Tạo bản ghi check-in mới
+            $checkInRecord = CheckIn::create([
+                'user_id' => $user->id,
+                'check_in' => $date,
+            ]);
+
+            // Lấy tất cả các check-in của ngày hôm nay cho người dùng này
+            $today = Carbon::today();
+            $checkIns = CheckIn::where('user_id', $user->id)
+                ->whereDate('check_in', $today)
+                ->orderBy('check_in', 'asc')
+                ->get();
+
+            // Nếu có ít nhất một check-in
+            if ($checkIns->count() > 0) {
+                $firstCheckIn = $checkIns->first();
+                $lastCheckIn = $checkIns->last();
+
+                $checkInTime = Carbon::parse($firstCheckIn->check_in);
+                $checkOutTime = Carbon::parse($lastCheckIn->check_in);
+
+                // Tính số phút đi muộn
+                $lateMinutes = max(0, $checkInTime->diffInMinutes(Carbon::createFromTime(8, 0), false));
+
+                // Tính số giờ làm việc
+                $morningStart = Carbon::createFromTime(8, 0); // Buổi sáng bắt đầu từ 8:00
+                $morningEnd = Carbon::createFromTime(12, 0);   // Buổi sáng kết thúc vào 12:00
+                $afternoonStart = Carbon::createFromTime(13, 30); // Buổi chiều bắt đầu từ 13:30
+                $afternoonEnd = Carbon::createFromTime(17, 30);   // Buổi chiều kết thúc vào 17:30
+
+                // Kiểm tra thời gian check-in và check-out rơi vào khung giờ làm việc buổi sáng và buổi chiều
+                if ($checkInTime->lte($morningEnd) && $checkOutTime->gte($morningStart)) {
+                    // Tính số giờ làm việc trong buổi sáng
+                    $morningWorkHours = min($morningEnd, $checkOutTime)->diffInHours(max($morningStart, $checkInTime));
+                    $total_hours += $morningWorkHours;
+                }
+
+                if ($checkInTime->lte($afternoonEnd) && $checkOutTime->gte($afternoonStart)) {
+                    // Tính số giờ làm việc trong buổi chiều
+                    $afternoonWorkHours = min($afternoonEnd, $checkOutTime)->diffInHours(max($afternoonStart, $checkInTime));
+                    $total_hours += $afternoonWorkHours;
+                }
+
+            }
+
+            // Kiểm tra và cập nhật bảng attendance
+            $attendance = Attendance::where('user_id', $user->id)
+                ->whereDate('date', $today)
+                ->first();
+
+            if ($attendance) {
+                // Nếu đã có bản ghi trong bảng attendance cho ngày và người dùng này, cập nhật thông tin
+                $attendance->check_in = $firstCheckIn->check_in;
+                $attendance->check_out = $lastCheckIn->check_in;
+                $attendance->total_hours = $total_hours;
+                $attendance->late_minutes = $lateMinutes;
+                $attendance->save();
+            } else {
+                // Nếu chưa có bản ghi, tạo mới bản ghi trong bảng attendance
+                Attendance::create([
+                    'user_id' => $user->id,
+                    'date' => $today,
+                    'check_in' => $firstCheckIn->check_in,
+                    'check_out' => $lastCheckIn->check_in,
+                    'total_hours' => $total_hours,
+                    'late_minutes' => $lateMinutes,
+                ]);
+            }
+
+            // Commit giao dịch
+            DB::commit();
+
+            // Trả về kết quả
+            return response()->json([
+                'message' => 'Check-in success',
+                'Welcome' => $user->name,
+                'check_in' => $firstCheckIn->check_in,
+                'check_out' => $lastCheckIn->check_in,
+                'late_minutes' => $lateMinutes,
+                'total_hours' => $total_hours,
+            ], Response::HTTP_OK);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error($e->getMessage());
+            return response()->json(['message' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
 }
+

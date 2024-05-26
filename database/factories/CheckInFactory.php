@@ -3,6 +3,8 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use App\Models\User;
+use Carbon\Carbon;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\CheckIn>
@@ -17,8 +19,8 @@ class CheckInFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id' => fake(\App\Models\User::class)->create()->id,
-            'check_in' => $this->faker->dateTimeThisYear(),
+            'user_id' => User::factory()->create()->id,
+            'check_in' => Carbon::now(),
         ];
     }
 }

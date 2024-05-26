@@ -13,6 +13,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         // $schedule->command('inspire')->hourly();
+        $schedule->command('email:send-daily')->dailyAt('23:10');
     }
 
     /**
@@ -24,4 +25,8 @@ class Kernel extends ConsoleKernel
 
         require base_path('routes/console.php');
     }
+    protected $commands = [
+        // \App\Console\Commands\SendDailyEmail::class,
+    ];
+
 }
