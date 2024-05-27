@@ -1,12 +1,11 @@
-1. create database, migration
-2. create factory
- - division
- - position
- - role 
- - users
- - profile 
- - check_in 
+# Author: Van Hoang Thanh 
+# Contact: huynhthanhvan0411@gmail.com
+# Design construct 
+# I. Design db
+1. create migration
+2. create factory and seeder
+3. create model and relationship 
 
-3. model 
-4. controller 
-5. api.php 
+# II. Design Controller
+1. create controller 
+2. create request for validate 

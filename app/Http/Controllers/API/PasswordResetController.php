@@ -14,6 +14,10 @@ use App\Mail\SendMailReset;
 
 class PasswordResetController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('api')->except('sendEmail');
+    }
     public function sendEmail(Request $request)  // this is most important function to send mail and inside of that there are another function
     {
         if (!$this->validateEmail($request->email)) {  // this is validate to fail send mail or true

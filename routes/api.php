@@ -39,6 +39,8 @@ Route::group(['middleware' => 'api','prefix' => 'admin'], function () {
         Route::post('refresh', [AuthencationController::class, 'refresh'])->name('auth.refresh');
         Route::post('me', [AuthencationController::class, 'me'])->name('auth.me');
         Route::post('register', [AuthencationController::class, 'registerAdmin'])->name('auth.register');
+        Route::post('forgot-password', [PasswordResetController::class, 'sendEmail'])->name('employee.forgot-password');
+        Route::post('reset-password', [ChangePassword::class, 'passwordResetProcess'])->name('employee.reset-password');
         
         Route::post('okk', [AuthencationController::class, 'okk']);
     });
@@ -48,12 +50,13 @@ Route::group(['middleware' => 'api','prefix' => 'admin'], function () {
         Route::get('hi', [NotificationController::class, 'hi'])->name('notification.hi');
     });
 
+    Route::prefix('email')->group(function () {
+        Route::get('/verify/{id}/{hash}', [EmailVerifiedlyController::class, 'checkVerifyEmail'])->middleware(['auth', 'signed'])->name('verification.verify');
+        Route::get('/verification-notification', [EmailVerifiedlyController::class, 'sendVerificationEmail'])->middleware(['auth', 'throttle:6,1'])->name('verification.send');
+    });
+
 });
 
-Route::prefix('email')->group(function () {
-    Route::get('/verify/{id}/{hash}', [EmailVerifiedlyController::class, 'checkVerifyEmail'])->middleware(['auth', 'signed'])->name('verification.verify');
-    Route::get('/verification-notification', [EmailVerifiedlyController::class, 'sendVerificationEmail'])->middleware(['auth', 'throttle:6,1'])->name('verification.send');
-});
 
 
 //=======================================USER======================================
@@ -71,10 +74,5 @@ Route::group(['prefix' => 'employee'], function () {
     Route::prefix('check-in')->group(function () {
         Route::post('', [EmployeeController::class, 'checkIn'])->name('employee.check-in');
         Route::post('history-day', [EmployeeController::class, 'historyDaily'])->name('employee.historyDaily');
-    });
-
-  
+    });  
 });
-
-Route::post('forgot-password', [PasswordResetController::class, 'sendEmail'])->name('employee.forgot-password');
-Route::post('reset-password', [ChangePassword::class, 'passwordResetProcess'])->name('employee.reset-password');

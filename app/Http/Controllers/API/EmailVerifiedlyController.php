@@ -12,6 +12,10 @@ use Illuminate\Auth\Events\Verified;
 
 class EmailVerifiedlyController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('api')->except('checkVerifyEmail', 'sendVerificationEmail');
+    }
     //check mail exist and verified
     public function checkVerifyEmail(EmailVerificationRequest $request)
     {

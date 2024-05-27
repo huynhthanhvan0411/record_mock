@@ -11,6 +11,8 @@ use App\Jobs\SendNotificationEmailJob;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use App\Jobs\SendMailJob;
 
 
 class NotificationController extends Controller
@@ -70,7 +72,7 @@ class NotificationController extends Controller
 
             // Đặt job gửi email vào hàng đợi
             $delay = $notification->scheduled_time;
-            $job = (new SendNotificationEmailJob($notification))->delay($delay);
+            $job = (new SendMailJob($notification))->delay($delay);
             dispatch($job);
 
             DB::commit();

@@ -15,6 +15,10 @@ use Illuminate\Support\Facades\Hash;
 
 class ChangePassword extends Controller
 {
+    public function __construct()
+    {
+        return $this->middleware('api')->except('passwordResetProcess');
+    }
     public function passwordResetProcess(UpdatePasswordRequest $request)
     {
         return $this->updatePasswordRow($request)->count() > 0 ? $this->resetPassword($request) : $this->tokenNotFoundError();
