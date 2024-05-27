@@ -38,7 +38,7 @@ Route::group(['middleware' => 'api','prefix' => 'admin'], function () {
         Route::post('logout', [AuthencationController::class, 'logout'])->name('auth.logout');
         Route::post('refresh', [AuthencationController::class, 'refresh'])->name('auth.refresh');
         Route::post('me', [AuthencationController::class, 'me'])->name('auth.me');
-        Route::post('u', [AuthencationController::class, 'u'])->name('auth.register');
+        Route::post('register', [AuthencationController::class, 'registerAdmin'])->name('auth.register');
         
         Route::post('okk', [AuthencationController::class, 'okk']);
     });

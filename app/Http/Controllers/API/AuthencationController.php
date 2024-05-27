@@ -63,7 +63,7 @@ class AuthencationController extends Controller
     //         ], Response::HTTP_INTERNAL_SERVER_ERROR);
     //     }
     // }
-    public function u(AuthRequest $request)
+    public function registerAdmin(AuthRequest $request)
     {
         dd('123');
         if (User::where('email', $request->email)->exists()) {
