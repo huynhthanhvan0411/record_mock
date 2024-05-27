@@ -38,16 +38,12 @@ Route::group(['middleware' => 'api','prefix' => 'admin'], function () {
         Route::post('logout', [AuthencationController::class, 'logout'])->name('auth.logout');
         Route::post('refresh', [AuthencationController::class, 'refresh'])->name('auth.refresh');
         Route::post('me', [AuthencationController::class, 'me'])->name('auth.me');
-        Route::post('register', [AuthencationController::class, 'registerAdmin'])->name('auth.register');
-        Route::post('forgot-password', [PasswordResetController::class, 'sendEmail'])->name('employee.forgot-password');
-        Route::post('reset-password', [ChangePassword::class, 'passwordResetProcess'])->name('employee.reset-password');
-        
-        Route::post('okk', [AuthencationController::class, 'okk']);
+        Route::post('register', [AuthencationController::class, 'register'])->name('auth.register');
+        Route::post('forgot-password', [PasswordResetController::class, 'sendEmail'])->name('auth.forgot-password');
+        Route::post('reset-password', [ChangePassword::class, 'passwordResetProcess'])->name('auth.reset-password');
     });
     Route::prefix('notification')->group(function () {
         Route::post('send', [NotificationController::class, 'send'])->name('notification.send');
-        Route::get('check', [NotificationController::class, 'check'])->name('notification.check');
-        Route::get('hi', [NotificationController::class, 'hi'])->name('notification.hi');
     });
 
     Route::prefix('email')->group(function () {
@@ -56,8 +52,6 @@ Route::group(['middleware' => 'api','prefix' => 'admin'], function () {
     });
 
 });
-
-
 
 //=======================================USER======================================
 

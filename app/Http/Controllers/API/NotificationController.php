@@ -17,24 +17,16 @@ use App\Jobs\SendMailJob;
 
 class NotificationController extends Controller
 {
-    public function hi()
-    {
-        return Carbon::now();
-    }
-
-    public function check()
-    {
-        return response()->json(['message' => 'Notification scheduled successfully'], 200);
-    }
+    // public function hi()
+    // {
+    //     return Carbon::now();
+    // }
 
     public function send(Request $request)
     {
-        // Convert send_all to boolean if it exists
         if ($request->has('send_all')) {
             $request->merge(['send_all' => filter_var($request->send_all, FILTER_VALIDATE_BOOLEAN)]);
         }
-
-        // Xác thực dữ liệu đầu vào
         $validator = Validator::make($request->all(), [
             'subject' => 'required|string',
             'message' => 'required|string',
@@ -55,10 +47,9 @@ class NotificationController extends Controller
                 'subject' => $request->subject,
                 'message' => $request->message,
                 'send_all' => $request->send_all,
-                'scheduled_time' => Carbon::now()->addMinutes(2), // Thời gian gửi thông báo sau 2 phút
-                'status' => 0, // Trạng thái ban đầu là chưa gửi
+                'scheduled_time' => Carbon::now(),
+                'status' => 0, 
             ]);
-
             if (!$notification->send_all) {
                 foreach ($request->user_ids as $userId) {
                     if (!$this->notificationAlreadySentToUser($userId, $notification->id)) {
@@ -69,29 +60,14 @@ class NotificationController extends Controller
                     }
                 }
             }
-
-            // Đặt job gửi email vào hàng đợi
             $delay = $notification->scheduled_time;
             $job = (new SendMailJob($notification))->delay($delay);
             dispatch($job);
-
             DB::commit();
             return response()->json(['message' => 'Notification scheduled successfully'], 200);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['message' => 'Failed to schedule notification', 'error' => $e->getMessage()], 500);
-        }
-    }
-
-    private function calculateScheduledTime($scheduledTime)
-    {
-        $now = Carbon::now();
-        [$hours, $minutes] = explode(':', $scheduledTime);
-
-        if ($now->hour > $hours || ($now->hour == $hours && $now->minute > $minutes)) {
-            return Carbon::tomorrow()->setHour($hours)->setMinute($minutes)->setSecond(0);
-        } else {
-            return Carbon::today()->setHour($hours)->setMinute($minutes)->setSecond(0);
         }
     }
 

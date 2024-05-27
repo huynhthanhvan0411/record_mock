@@ -26,97 +26,25 @@ class AuthencationController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['login', 'refresh', 'register']]);
+        $this->middleware('auth:api', ['except' => ['login', 'refresh',]]);
     }
-
-    // public function register(AuhtRequest $request)
-    // {
-    //     dd('123');
-    //     if (User::where('email', $request->email)->exists()) {
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => 'Email already exists'
-    //         ], Response::HTTP_BAD_REQUEST);
-    //     }
-    //     DB::beginTransaction();
-    //     try {
-    //         $user = new User();
-    //         $user->role_id = $request->role_id;
-    //         $user->name = $request->name;
-    //         $user->email = $request->email;
-    //         $user->status = $request->status;
-    //         $user->password = Hash::make($request->password);
-    //         $user->save();
-    //         event(new Registered($user));
-    //         DB::commit();
-    //         return response()->json([
-    //             'success' => true,
-    //             'message' => 'User created successfully',
-    //             'user' => $user
-    //         ], Response::HTTP_CREATED);
-    //     } catch (\Exception $e) {
-    //         DB::rollBack();
-    //         Log::error($e->getMessage());
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => $e->getMessage()
-    //         ], Response::HTTP_INTERNAL_SERVER_ERROR);
-    //     }
-    // }
-    public function registerAdmin(AuthRequest $request)
+    public function register(Request $request)
     {
-        dd('123');
-        if (User::where('email', $request->email)->exists()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Email already exists'
-            ], Response::HTTP_BAD_REQUEST);
-        }
-        // DB::beginTransaction();
-        // try {
-        //     $user = new User();
-        //     $user->role_id = $request->role_id;
-        //     $user->name = $request->name;
-        //     $user->email = $request->email;
-        //     $user->status = $request->status;
-        //     $user->password = Hash::make($request->password);
-        //     $user->save();
-        //     event(new Registered($user));
-        //     DB::commit();
-        //     return response()->json([
-        //         'success' => true,
-        //         'message' => 'User created successfully',
-        //         'user' => $user
-        //     ], Response::HTTP_CREATED);
-        // } catch (\Exception $e) {
-        //     DB::rollBack();
-        //     Log::error($e->getMessage());
-        //     return response()->json([
-        //         'success' => false,
-        //         'message' => $e->getMessage()
-        //     ], Response::HTTP_INTERNAL_SERVER_ERROR);
-        // }
-    }
+        // $request->validate([
+        //     'role_id' => 'required|integer|between:1,2', // '0' => 'user', '1' => 'admin'
+        //     'name' => 'required|string|max:255',
+        //     'email' => 'required|string|email|max:255|unique:users,email',
+        //     'status' => 'required|integer|between:0,1', // '0' => 'inactive', '1' => 'active'
+        //     'password' => 'required|string|min:6|confirmed'
+        // ]);
 
-     public function okk(Request $request){
-        // return dd('123');
-        $request->validate(
-            [
-                'role_id' => 'required|integer|between:1,2', // '0' => 'user', '1' => 'admin
-                'name' => 'required|string|max:255',
-                'email' => 'required|string|email|max:255|unique:users,email',
-                'status' => 'required|integer|between:0,1', // '0' => 'inactive', '1' => 'active
-                'password' => 'required|string|min:6|confirmed'
-            ]
-        );
         if (User::where('email', $request->email)->exists()) {
             return response()->json([
                 'success' => false,
                 'message' => 'Email already exists'
             ], Response::HTTP_BAD_REQUEST);
         }
-        DB::beginTransaction();
-        try{
+        try {
             $user = new User();
             $user->role_id = $request->role_id;
             $user->name = $request->name;
@@ -124,22 +52,24 @@ class AuthencationController extends Controller
             $user->status = $request->status;
             $user->password = Hash::make($request->password);
             $user->save();
+
             event(new Registered($user));
+
             DB::commit();
             return response()->json([
                 'success' => true,
                 'message' => 'User created successfully',
                 'user' => $user
             ], Response::HTTP_CREATED);
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             DB::rollBack();
             Log::error($e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => 'Internal server error'
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-     }
+    }
     /**
      * Get a JWT via given credentials.
      *
@@ -218,21 +148,6 @@ class AuthencationController extends Controller
         ]);
     }
 
-    // public function checkEmail()
-    // {
-    //     try {
-    //         if (User::where('email', request('email'))->exists()) {
-    //             return response()->json([
-    //                 'success' => true,
-    //                 'message' => 'Email already exists'
-    //             ], Response::HTTP_BAD_REQUEST);
-    //         }
-    //         return response()->json(['success' => false], Response::HTTP_OK);
-    //     } catch (\Exception $e) {
-    //         Log::error($e->getMessage());
-    //         return response()->json(['success' => false, 'message' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
-    //     }
-    // }
     public function createResetPasswordToken(Request $request)
     {
         try {
