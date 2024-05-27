@@ -67,6 +67,7 @@ class EmployeeController extends Controller
         try {
             $profile = Profile::where('user_id', $user->id)
             ->select(
+                'users.id as UserId',
                 'users.name as Name',
                 'users.email as Email',
                 'positions.name as Position',
@@ -204,7 +205,7 @@ class EmployeeController extends Controller
         }
     }
 
-    public function historyDaily(Request $request)
+    public function history(Request $request)
     {
         $user = Auth::user();
         try {

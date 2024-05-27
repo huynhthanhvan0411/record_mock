@@ -67,6 +67,6 @@ Route::group(['prefix' => 'employee'], function () {
     });
     Route::prefix('check-in')->group(function () {
         Route::post('', [EmployeeController::class, 'checkIn'])->name('employee.check-in');
-        Route::post('history-day', [EmployeeController::class, 'historyDaily'])->name('employee.historyDaily');
+        Route::post('history', [EmployeeController::class, 'history'])->name('employee.history');
     });  
 });
